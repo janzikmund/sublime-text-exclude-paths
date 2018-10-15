@@ -4,6 +4,14 @@
         "id": "exclude-path",
         "children": [
             {
+                "caption": "Mark as Binary in Project",
+                "id": "mark-binary-project",
+                "command": "mark_binary_project",
+                "args": {
+                    "paths": []
+                }
+            },
+            {
                 "caption": "From Project",
                 "id": "exclude-path-project",
                 "command": "exclude_path_project",

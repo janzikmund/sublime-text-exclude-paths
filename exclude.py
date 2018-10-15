@@ -69,6 +69,35 @@ class ExcludePathProjectCommand(SidebarSelection, sublime_plugin.WindowCommand):
             self.window.set_project_data(data)
 
 
+class MarkBinaryProjectCommand(SidebarSelection, sublime_plugin.WindowCommand):
+    def handle(self, files, folders):
+        data = self.window.project_data()
+        settings = sublime.load_settings("Preferences.sublime-settings")
+        project_file_name = self.window.project_file_name()
+        changed = False
+
+        for folder in data['folders']:
+            old_files = set(folder.get("binary_file_patterns", []))
+            new_files = old_files.copy()
+
+            folder_path = folder['path']
+            if not os.path.exists(folder_path):
+                folder_path = os.path.normpath(os.path.join(os.path.dirname(project_file_name), folder_path))
+
+            for f in files:
+                new_files.add(f)
+            for d in folders:
+                new_files.add(os.path.join(d, "*"))
+
+            if old_files != files:
+                folder["binary_file_patterns"] = list(new_files)
+                changed = True
+
+        if changed:
+            # print("changed", data)
+            self.window.set_project_data(data)
+
+
 class ExcludePathClearProjectCommand(sublime_plugin.WindowCommand):
     def run(self):
         data = self.window.project_data()
@@ -77,4 +106,6 @@ class ExcludePathClearProjectCommand(sublime_plugin.WindowCommand):
                 del(folder["folder_exclude_patterns"])
             if "file_exclude_patterns" in folder:
                 del(folder["file_exclude_patterns"])
+            if "binary_file_patterns" in folder:
+                del(folder["binary_file_patterns"])
         self.window.set_project_data(data)
